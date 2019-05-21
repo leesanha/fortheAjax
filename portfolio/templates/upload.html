@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<form method='post' action="{% url 'create2' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label for="title">제목</label>
+    <input type="text" name="title" id="title">
+    <br><label for="description">설명</label><br>
+    <textarea name="description" id="description" rows="5" cols="40"></textarea>
+
+    <br><input type="file" name="image" id="image">
+    <br><br>
+    <input type="submit" value="제출">
+</form>
+{% endblock %}

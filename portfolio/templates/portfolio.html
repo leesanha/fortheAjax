@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load staticfiles %}
+<h1>Portfolio</h1>
+<hr>
+<div class="card" style="width: 18rem;display: inline-block;">
+    <img class="card-img-top" src="{% static 'cat.jpg' %}" alt="Card image cap">
+    <div class="card-body">
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    </div>
+  </div>
+{% for portfolio in portfolios.all %}
+  <div class="card" style="width: 18rem;display: inline-block;">
+    <img class="card-img-top" src="{{ portfolio.image.url }}" alt=" Card image cap" width="200" height="150">
+      <div class="card-body">
+        <h4>{{ portfolio.title }}</h4>
+        <p class="card-text">{{ portfolio.description }}</p>
+      </div>
+</div>
+{% endfor %}
+<br>
+<button type="button" class="btn btn-primary" onclick="location.href = '/portfolio/upload'">이미지 추가</button>
+{% endblock %}
