@@ -10,7 +10,7 @@
         <h4>본문: </h4>
         <textarea cols=40 rows=10 name="body"></textarea>
         <br>
-
+        <input type="hidden" name="user_id" value="{{user.id}}">
         <input class="btn btn-outline-primary" type="submit" value="제출하기">
     </form>
 {% endblock %}

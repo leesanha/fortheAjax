@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Blog
+from .models import Blog, Comment
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 # Create your views here.
 def home(request):
@@ -27,6 +28,7 @@ def create(request):
     blog.title = request.GET['title']  # 내용 채우기
     blog.body = request.GET['body'] # 내용 채우기
     blog.pub_date = timezone.datetime.now() # 내용 채우기
+    blog.user = get_object_or_404(User, pk=request.GET['user_id'])
     blog.save() # 객체 저장하기
 
     # 새로운 글 url 주소로 이동
@@ -54,3 +56,11 @@ def delete(request, blog_id):
     blog= get_object_or_404(Blog, pk= blog_id) # 특정 객체 가져오기(없으면 404 에러)
     blog.delete()
     return redirect('home') # home 이름의 url 로
+
+def comment_create(request, blog_id):
+    comment = Comment()#댓글을 저장하기 위해 빈 Comment 객체를 하나 생성
+    comment.body = request.GET['content'] #댓글의 내용을 받아옴.
+    comment.blog = get_object_or_404(Blog, pk = blog_id) #해당 댓글을 어떤 blog 객체와 연결시켜 줄 것인지 찾아온다.
+    comment.save() #comment를 db에 저장.
+
+    return redirect('/blog/'+str(blog_id))

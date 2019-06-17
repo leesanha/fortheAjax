@@ -30,7 +30,8 @@ urlpatterns = [
     path('blog/update/<int:blog_id>', blog.views.update, name="update"),
     path('blog/delete/<int:blog_id>', blog.views.delete, name="delete"),
     path('portfolio/', portfolio.views.portfolio, name='portfolio'),
-     path('portfolio/upload/', portfolio.views.upload, name="upload"),
+    path('portfolio/upload/', portfolio.views.upload, name="upload"),
     path('portfolio/create2/', portfolio.views.create2, name="create2"),
     path('accounts/', include('accounts.urls')), # accounts 앱 안 urls 파일 참조
+    path('comment/create/<int:blog_id>', blog.views.comment_create, name="comment_create"),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
