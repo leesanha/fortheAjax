@@ -12,7 +12,15 @@ def home(request):
 
 def detail(request, blog_id) : 
     blog_detail = get_object_or_404(Blog, pk= blog_id) # 특정 객체 가져오기(없으면 404 에러)
-    return render(request, 'blog/detail.html', {'blog':blog_detail})
+
+    user = request.user
+
+    if blog_detail.likes.filter(id = user.id):
+        message = "좋아요 취소"
+    else:
+        message = "좋아요"
+
+    return render(request, 'blog/detail.html', {'blog':blog_detail, 'message': message})
     # render라는 함수를 통해 페이지를 띄워줄 건데, home.html 파일을 띄워줄 것이고 
     # 이 때, blog 객체도 함께 넘겨주도록 하겠다.
 
@@ -64,3 +72,15 @@ def comment_create(request, blog_id):
     comment.save() #comment를 db에 저장.
 
     return redirect('/blog/'+str(blog_id))
+
+def post_like(request, blog_id):
+    user = request.user # 로그인된 유저의 객체(정보)를 가져온다.
+    blog = get_object_or_404(Blog, pk = blog_id) # 좋아요 버튼을 누를 글을 가져온다.
+
+    # 이미 좋아요를 눌렀다면 좋아요를 취소, 아직 안눌렀으면 좋아요를 누른다.
+    if blog.likes.filter(id = user.id): # 로그인한 user가 현재 blog 객체에 좋아요를 눌렀다면
+        blog.likes.remove(user) # 해당 좋아요를 없앤다.
+    else : #아직 좋아요를 누르지 않았다면
+        blog.likes.add(user) # 좋아요를 추가한다.
+    
+    return redirect('/blog/' + str(blog_id)) # 좋아요 처리를 하고 detail 페이지로 간다.
