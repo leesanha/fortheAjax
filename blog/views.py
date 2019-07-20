@@ -3,6 +3,9 @@ from .models import Blog, Comment
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+from django.http import HttpResponse
+import json
+
 # Create your views here.
 def home(request):
     blogs = Blog.objects.all().order_by('-id') # 객체 묶음 가져오기
@@ -84,3 +87,34 @@ def post_like(request, blog_id):
         blog.likes.add(user) # 좋아요를 추가한다.
     
     return redirect('/blog/' + str(blog_id)) # 좋아요 처리를 하고 detail 페이지로 간다.
+
+def like(request):
+    user = request.user
+    blog = get_object_or_404(Blog, pk = request.POST['blog_id'])
+
+    # 이미 좋아요를 눌렀다면 좋아요를 취소, 아직 안눌렀으면 좋아요를 누른다.
+    if blog.likes.filter(id = user.id): # 로그인한 user가 현재 blog 객체에 좋아요를 눌렀다면
+        blog.likes.remove(user) # 해당 좋아요를 없앤다.
+        message = "좋아요"
+    else : #아직 좋아요를 누르지 않았다면
+        blog.likes.add(user) # 좋아요를 추가한다.
+        message = "좋아요 취소"
+
+    # json과 비슷한 dictionary 형식으로 만든다.
+    ret = {
+        'message': message,
+        'num': blog.like_count(),
+    }
+
+    return HttpResponse(json.dumps(ret), content_type="application/json") # ret 변수를 json으로 변환하고 전달한다.
+
+def comment_create_ajax(request):
+    comment = Comment()
+    comment.body = request.POST.get('body')
+    comment.blog = get_object_or_404(Blog, pk = request.POST.get('blog_id'))
+    comment.save()
+
+    ret = {
+        'body' : comment.body,
+    }
+    return HttpResponse(json.dumps(ret), content_type="application/json")

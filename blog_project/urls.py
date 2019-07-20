@@ -33,6 +33,8 @@ urlpatterns = [
     path('portfolio/upload/', portfolio.views.upload, name="upload"),
     path('portfolio/create2/', portfolio.views.create2, name="create2"),
     path('accounts/', include('accounts.urls')), # accounts 앱 안 urls 파일 참조
-    path('comment/create/<int:blog_id>', blog.views.comment_create, name="comment_create"),
-    path('blog/like/<int:blog_id>', blog.views.post_like, name="post_like"), # like를 위한 url
+    # path('comment/create/<int:blog_id>', blog.views.comment_create, name="comment_create"),
+    # path('blog/like/<int:blog_id>', blog.views.post_like, name="post_like"), # like를 위한 url
+    path('blog/like',blog.views.like, name="like"), # ajax로 좋아요 기능을 구현한 url
+    path('comment/create', blog.views.comment_create_ajax, name="comment_create_ajax"), # ajax로 댓글 기능을 구현한 url
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

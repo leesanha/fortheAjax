@@ -3,21 +3,81 @@
     <h1> {{blog.title}} </h1>
     <p> {{blog.pub_date}} </p>
     <p> {{blog.body}} </p>
-    <a href="{% url 'post_like' blog.id %}">
-        {{message}}
-    </a><br>{{blog.like_count}}명이 좋아합니다.
+    <button onClick="like({{blog.id}})">
+        <p id="like">{{message}}</p>
+    </button>
+    <br><span id="like_counting">{{blog.like_count}}</span>명이 좋아합니다.
+    <!-- <a href="{#% url 'post_like' blog.id %#}"> -->
+        <!-- {{message}} -->
+    <!-- </a><br>{{blog.like_count}}명이 좋아합니다. -->
     <hr>
     <h3>Comment</h3>
-    {% for comment in blog.comment_set.all %}
-        <p>{{comment.body}}</p>
-    {% endfor %}
-    <form action="{% url 'comment_create' blog.id %}">
-        <input type="text" name="content" placeholder="댓글 입력">
-        <button type="submit">작성</button>
-    </form>
+    <div id="comment_list">
+        {% for comment in blog.comment_set.all %}
+            <p>{{comment.body}}</p>
+        {% endfor %}
+    </div> 
+    <!-- <form action="{#% url 'comment_create' blog.id %#}"> -->
+        <input type="text" id="comment" name="content" placeholder="댓글 입력">
+        <button onClick="make_comment({{blog.id}})" type="submit">작성</button>
+    <!-- </form> -->
     <br><br>
 
     <a href="{%url 'home'%}"><button type="button" class="btn btn-outline-primary">HOME</button></a>
     <a href="{%url 'edit' blog.id %}"><button type="button" class="btn btn-outline-primary">EDIT</button></a>
     <a href="{%url 'delete' blog.id %}"><button type="button" class="btn btn-outline-primary">DELETE</button></a>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+<!-- script 태그안에서 javascript를 사용한다. -->
+<script>
+    //javascript 주석 사용법 1
+            /* 
+            javascript 주석 사용법 2
+            */
+            function like(blog_id){
+                //ajax 비동기 통신을 하기위한 코드
+                $.ajax({
+                    type: "POST", //POST, GET 등 어떤 방식으로 request를 전달할 것인가
+                    url: "/blog/like", //해당 request를 보낼 주소
+                    data: {//json 형식으로 서버에 데이터를 전달한다.
+                        'blog_id': blog_id,
+                        'csrfmiddlewaretoken': '{{csrf_token}}',
+                    },
+                    dataType: "json", //데이터를 어떤 형식으로 주고 받을 것인가
+                    success: function(response){ //ajax통신을 성공했을 때 호출된다.
+                        console.log(response.message);
+                        //해당 태그를 다른 태그로 바꾼다.
+                        //views.py에서 받은 ret 변수를 response 변수로 받았다고 생각하면 된다.
+                        $("#like").replaceWith('<p id="like">'+response.message+'</p>');
+                        $("#like_counting").replaceWith('<span id="like_counting">'+response.num+'</span>');
+                    },
+                    error: function(request, status, error){ //ajax통신을 실패했을 때 호출된다.
+                        alert(error);
+                    },
+                });
+            }
+
+            function make_comment(blog_id){
+                var body = $("#comment").val();
+                $.ajax({
+                    type: "POST",
+                    url: "/comment/create",
+                    data: {
+                        'blog_id': blog_id,
+                        'body': body,
+                        'csrfmiddlewaretoken': '{{csrf_token}}',
+                    },
+                    dataType: "json",
+                    success: function(response){
+                        console.log(response.message);
+                        $("#comment_list").append("<p>"+response.body+"</p><hr>")
+                        $("#comment").val(' ')
+                    },
+                    error: function(request, status, error){
+                        alert(error);
+                    },
+                });
+            }
+    </script>
 {% endblock %}
